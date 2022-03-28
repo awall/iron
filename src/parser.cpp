@@ -29,7 +29,8 @@ Ast* Parser::a_lit_int() {
 }
 
 Ast* Parser::a_num_expr() {
-  auto left = a_lit_int();
+  auto left = a_bracketed();
+  if (!left) left = a_lit_int();
   if (!left) return nullptr;
 
   auto plus = t_expect(TK_OP_PLUS);
@@ -43,4 +44,20 @@ Ast* Parser::a_num_expr() {
     .left = left,
     .right = right,
   };
+}
+
+Ast* Parser::a_bracketed() {
+  auto open = t_expect(TK_PAREN_OPEN);
+  if (!open) {
+    return nullptr;
+  }
+
+  auto raw = a_num_expr();
+  auto close = t_expect(TK_PAREN_CLOSE);
+  if (close) {
+    return raw;
+  } else {
+    printf("'(' with no matching ')'");
+    return nullptr;
+  }
 }

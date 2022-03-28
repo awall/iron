@@ -15,9 +15,10 @@ bool is_whitespace(char c) {
   return false;
 }
 
-bool is_op_or_whitespace(char c) {
+bool is_ok_after_number(char c) {
   switch (c) {
     case '+':
+    case ')':
       return true;
   }
   return is_whitespace(c);
@@ -76,7 +77,7 @@ bool Lexer::number(int* number) {
       *number *= 10;
       *number += c - '0';
       digits++;
-    } else if (!c || is_op_or_whitespace(c)) {      
+    } else if (!c || is_ok_after_number(c)) {      
       return digits > 0;
     } else if (digits > 0) {
       printf("ERROR: expected digit, whitespace or operator.\n");
@@ -100,21 +101,12 @@ Token* Lexer::next() {
 
   if (!peek(0)) return nullptr;
 
-  if (expect('+')) {
-    printf("lexed +\n");
-    return new (_tokens + _ntokens) Token { 
-      .type = TK_OP_PLUS,
-    };
-  }
+  if (expect('(')) return new (_tokens + _ntokens) Token { .type = TK_PAREN_OPEN };
+  if (expect(')')) return new (_tokens + _ntokens) Token { .type = TK_PAREN_CLOSE };
+  if (expect('+')) return new (_tokens + _ntokens) Token { .type = TK_OP_PLUS };
   
   int n;
-  if (number(&n)) {
-    printf("lexed %d\n", n);
-    return new (_tokens + _ntokens) Token { 
-      .type = TK_LIT_INT,
-      .int_value = n,
-    };
-  }
+  if (number(&n)) return new (_tokens + _ntokens) Token { .type = TK_LIT_INT, .int_value = n };
 
   // error, expected op or number
   printf("ERROR: expected + or number.\n");

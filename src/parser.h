@@ -31,8 +31,8 @@ private:
 
   Token* t_expect(TokenType);
   Ast* a_lit_int();
+  Ast* a_bracketed();
   Ast* a_num_expr();
-  Ast* a_op_plus();
 
 public:
 

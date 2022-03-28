@@ -6,6 +6,8 @@
 enum TokenType {
   TK_LIT_INT,
   TK_OP_PLUS,
+  TK_PAREN_OPEN,
+  TK_PAREN_CLOSE,
 };
 
 struct Token {
@@ -26,8 +28,6 @@ private:
   char expect(char expected);
   bool number(int*);
   void skip_whitespace();
-
-  Token* t_lit_int();
 
   Token* next();
 
