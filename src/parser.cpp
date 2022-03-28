@@ -28,22 +28,24 @@ Ast* Parser::a_lit_int() {
   return nullptr;
 }
 
+AstType Parser::op() {
+  if (t_expect(TK_OP_PLUS)) return AST_OP_PLUS;
+  if (t_expect(TK_OP_MULT)) return AST_OP_MULT;
+  return AST_NONE;
+}
+
 Ast* Parser::a_num_expr() {
   auto left = a_bracketed();
   if (!left) left = a_lit_int();
   if (!left) return nullptr;
 
-  auto plus = t_expect(TK_OP_PLUS);
-  if (!plus) return left;
+  auto mid = op();
+  if (!mid) return left;
 
   auto right = a_num_expr();
   if (!right) return nullptr;
 
-  return new Ast { 
-    .type = AST_OP_PLUS,
-    .left = left,
-    .right = right,
-  };
+  return new Ast { .type = mid, .left = left, .right = right };
 }
 
 Ast* Parser::a_bracketed() {

@@ -5,8 +5,11 @@
 
 
 enum AstType {
+  AST_NONE,
+
   AST_LIT_INT,
   AST_OP_PLUS,
+  AST_OP_MULT,
 };
 
 struct Ast {
@@ -30,6 +33,7 @@ private:
   Token* peek(int offset);
 
   Token* t_expect(TokenType);
+  AstType op();
   Ast* a_lit_int();
   Ast* a_bracketed();
   Ast* a_num_expr();

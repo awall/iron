@@ -6,14 +6,21 @@
 
 void print_ast(Ast* ast) {
   if (ast->type == AST_LIT_INT) {
-      printf("%d", ast->int_value);
+    printf("%d", ast->int_value);
   }
   if (ast->type == AST_OP_PLUS) {
-      printf("(");
-      print_ast(ast->left);
-      printf("+");
-      print_ast(ast->right);
-      printf(")");
+    printf("(");
+    print_ast(ast->left);
+    printf("+");
+    print_ast(ast->right);
+    printf(")");
+  }
+  if (ast->type == AST_OP_MULT) {
+    printf("(");
+    print_ast(ast->left);
+    printf("*");
+    print_ast(ast->right);
+    printf(")");
   }
 }
 

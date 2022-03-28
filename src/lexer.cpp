@@ -18,6 +18,7 @@ bool is_whitespace(char c) {
 bool is_ok_after_number(char c) {
   switch (c) {
     case '+':
+    case '*':
     case ')':
       return true;
   }
@@ -104,6 +105,7 @@ Token* Lexer::next() {
   if (expect('(')) return new (_tokens + _ntokens) Token { .type = TK_PAREN_OPEN };
   if (expect(')')) return new (_tokens + _ntokens) Token { .type = TK_PAREN_CLOSE };
   if (expect('+')) return new (_tokens + _ntokens) Token { .type = TK_OP_PLUS };
+  if (expect('*')) return new (_tokens + _ntokens) Token { .type = TK_OP_MULT };
   
   int n;
   if (number(&n)) return new (_tokens + _ntokens) Token { .type = TK_LIT_INT, .int_value = n };
