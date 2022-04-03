@@ -1,38 +1,39 @@
 #pragma once
-#include <iostream>
-#include <fstream>
+#include <string>
+#include <unordered_set>
 
 
 enum TokenType {
-  TK_NONE,
+  TK_NONE = 0,
 
+  TK_ATOM,
   TK_LIT_INT,
   TK_OP_PLUS,
+  TK_OP_MINUS,
   TK_OP_MULT,
+  TK_OP_EQ,
   TK_PAREN_OPEN,
   TK_PAREN_CLOSE,
 };
+
+typedef std::string Atom;
 
 struct Token {
   TokenType type;
   union {
     int int_value;
+    Atom* atom;
   };
 };
+
 
 class Lexer {
 private:
 
-  int _cursor;
-  char* _chars; int _nchars;
-  Token* _tokens; int _ntokens;
+  char* _chars; char* _here;
+  Token* _tokens; size_t _ntokens = 0;
 
-  char peek(int offset);
-  char expect(char expected);
-  bool number(int*);
-  void skip_whitespace();
-
-  Token* next();
+  Token next();
 
 public:
 

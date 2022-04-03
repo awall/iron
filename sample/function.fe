@@ -1,0 +1,11 @@
+
+void main (string[] args):
+  x = 1 + 2 * 3 + 4
+  v = -2
+  y = v * -2
+  z = do:
+    y = x * 2
+    y * 2
+  printf "%d %d" y*2 (triple x)
+  printf "%d %d", y*2, triple x
+  printf("%d %d", y*2, triple(x))
