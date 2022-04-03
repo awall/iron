@@ -14,7 +14,7 @@ Parser::~Parser() {
 
 Ast* Parser::parse_file(const char* path) {
   _lexer.lex_file(path);
-  return a_expr();
+  return a_naked_block();
 }
 
 Token* Parser::peek(int offset) {
@@ -57,10 +57,11 @@ AstType Parser::op() {
 Ast* Parser::a_expr() {
   auto pre = op(); 
   auto left = a_bracketed();
+  if (!left) left = a_block();
   if (!left) left = a_lit_int();
   if (!left) left = a_atom();
   if (!left) return nullptr;
-  if (pre) left = new (_nodes + _nnodes++) Ast { .span = 1 + left->span, .type = pre, .left = nullptr, .right = left };
+  if (pre) left = new (_nodes + _nnodes++) Ast { .nkids = 1, .span = 1 + left->span, .type = pre, .kid = left };
 
   auto mid = op();
   if (!mid) return left;
@@ -72,15 +73,16 @@ Ast* Parser::a_expr() {
     return nullptr;
   }
   
-  return new (_nodes + _nnodes++) Ast { .span = 1 + left->span + right->span, .type = mid, .left = left, .right = right };
+  left->next = right;
+  return new (_nodes + _nnodes++) Ast { .nkids = 2, .span = 1 + left->span + right->span, .type = mid, .kid = left };
 }
 
 Ast* Parser::a_bracketed() {
-  auto open = t_expect(TK_PAREN_OPEN);
+  auto open = t_expect(TK_PAREN_BEG);
   if (!open) return nullptr;
 
   auto raw = a_expr();
-  auto close = t_expect(TK_PAREN_CLOSE);
+  auto close = t_expect(TK_PAREN_END);
   if (!close) {
     if (raw) _nnodes -= raw->span;
     printf("ERROR: '(' with no matching ')'");
@@ -88,4 +90,42 @@ Ast* Parser::a_bracketed() {
   }
 
   return raw;
+}
+
+Ast* Parser::a_block() {
+  auto open = t_expect(TK_SCOPE_BEG);
+  if (!open) return nullptr;
+
+  auto statements = a_statements();
+
+  auto close = t_expect(TK_SCOPE_END);
+  if (!close) {
+    printf("ERROR: '{' with no matching '}'");
+    return nullptr;
+  }
+
+  return statements;
+}
+
+Ast* Parser::a_statements() {
+  int nkids = 0;
+  int span = 1;
+  Ast* first = nullptr;
+  Ast* last = nullptr;
+  while (true) {
+    auto expr = a_expr();
+    if (!expr) break;
+    if (!t_expect(TK_STATEMENT_END)) {
+      printf("ERROR: statements must end with ';'");  
+      return nullptr;
+    }
+
+    if (!first) first = expr;
+    if (last) last->next = expr;
+    last = expr;
+    span += expr->span;
+    nkids++;    
+  }
+
+  return new (_nodes + _nnodes++) Ast { .nkids = nkids, .span = span, .type = AST_BLOCK, .kid = first };
 }

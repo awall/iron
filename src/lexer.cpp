@@ -46,6 +46,12 @@ bool is_atomic(char c) {
 }
 
 bool ends_word(char c) {
+  switch (c) {
+    case '{':
+    case '}':
+    case ';':
+      return true;
+  }
   return !c || is_operator(c) || is_whitespace(c);
 }
 
@@ -83,8 +89,11 @@ void Lexer::lex_file(char const* path) {
 Token Lexer::next() {
   char c = *_here;
   _here++;
-  if (c == '(') return Token { .type = TK_PAREN_OPEN };
-  if (c == ')') return Token { .type = TK_PAREN_CLOSE };
+  if (c == '(') return Token { .type = TK_PAREN_BEG };
+  if (c == ')') return Token { .type = TK_PAREN_END };
+  if (c == '{') return Token { .type = TK_SCOPE_BEG };
+  if (c == '}') return Token { .type = TK_SCOPE_END };
+  if (c == ';') return Token { .type = TK_STATEMENT_END };
   if (c == '+') return Token { .type = TK_OP_PLUS };
   if (c == '-') return Token { .type = TK_OP_MINUS };
   if (c == '*') return Token { .type = TK_OP_MULT };
@@ -96,7 +105,7 @@ Token Lexer::next() {
   bool is_number = true;
   bool is_atom = true;
   while (true) {
-    char c = *_here++;
+    char c = *_here;
 
     if (ends_word(c)) {
       if (is_number) return Token { .type = TK_LIT_INT, .int_value = number };
@@ -105,7 +114,7 @@ Token Lexer::next() {
       printf("ERROR: %s is not an operator, an atom, or a number.\n", atom->c_str());
       return Token { .type = TK_NONE };
     }
-
+    _here++;
     is_number &= is_digit(c);
     is_atom &= is_atomic(c); 
 

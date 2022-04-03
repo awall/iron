@@ -9,6 +9,7 @@ enum AstType {
   AST_NONE,
 
   AST_ATOM,
+  AST_BLOCK,
   AST_LIT_INT,
   AST_OP_PLUS,
   AST_OP_MINUS,
@@ -17,16 +18,16 @@ enum AstType {
 };
 
 struct Ast {
-  int span;
+  int nkids;
+  int span;  
   AstType type;  
+
+  Ast* kid;
+  Ast* next;
 
   union {
     Atom* atom;
     int int_value;
-    struct {      
-      Ast* left;
-      Ast* right;
-    };
   };
 };
 
@@ -45,6 +46,8 @@ private:
   Ast* a_atom();
   Ast* a_bracketed();
   Ast* a_expr();
+  Ast* a_block();
+  Ast* a_statements();
 
 public:
 

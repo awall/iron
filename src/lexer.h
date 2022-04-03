@@ -12,8 +12,11 @@ enum TokenType {
   TK_OP_MINUS,
   TK_OP_MULT,
   TK_OP_EQ,
-  TK_PAREN_OPEN,
-  TK_PAREN_CLOSE,
+  TK_PAREN_BEG,
+  TK_PAREN_END,
+  TK_SCOPE_BEG,
+  TK_SCOPE_END,
+  TK_STATEMENT_END,
 };
 
 typedef std::string Atom;
